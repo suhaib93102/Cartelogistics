@@ -273,10 +273,9 @@ packages:
   flutter_geofire:
     dependency: "direct main"
     description:
-      name: flutter_geofire
-      sha256: "756588ac6ee477d59cb6516a49f69a7306d35765c7de738ec894d77359d4de79"
-      url: "https://pub.dev"
-    source: hosted
+      path: "third_party/flutter_geofire"
+      relative: true
+    source: path
     version: "2.0.3"
   flutter_lints:
     dependency: "direct dev"
@@ -337,12 +336,11 @@ packages:
     source: hosted
     version: "12.0.0"
   geolocator_android:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: geolocator_android
-      sha256: "93906636752ea4d4e778afa981fdfe7409f545b3147046300df194330044d349"
-      url: "https://pub.dev"
-    source: hosted
+      path: "third_party/geolocator_android"
+      relative: true
+    source: path
     version: "4.3.1"
   geolocator_apple:
     dependency: transitive
@@ -707,10 +705,9 @@ packages:
   restart_app:
     dependency: "direct main"
     description:
-      name: restart_app
-      sha256: b37daeb1c02fcab30e19d9e30b6fdd215bd53577efd927042eb77cf6f09daadb
-      url: "https://pub.dev"
-    source: hosted
+      path: "third_party/restart_app"
+      relative: true
+    source: path
     version: "1.2.1"
   rounded_loading_button:
     dependency: "direct main"

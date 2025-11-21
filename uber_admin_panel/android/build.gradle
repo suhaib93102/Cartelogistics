@@ -3,18 +3,6 @@ buildscript {
         google()
         mavenCentral()
     }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.2.1'
-        classpath 'com.google.gms:google-services:4.4.2'
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        mavenCentral()
-    }
 }
 
 rootProject.buildDir = "../build"
@@ -22,6 +10,43 @@ subprojects {
     project.buildDir = "${rootProject.buildDir}/${project.name}"
 }
 
-tasks.register("clean", Delete) {
-    delete rootProject.buildDir
-}
+
+    subprojects {
+        project.evaluationDependsOn(":app")
+    }
+
+    // Ensure plugin modules always define a namespace to satisfy newer AGP requirements.
+    gradle.projectsEvaluated {
+        subprojects.each { proj ->
+            try {
+                if (proj.plugins.hasPlugin('com.android.library')) {
+                    def androidExt = proj.extensions.findByName('android')
+                    if (androidExt != null) {
+                        def ns = null
+                        try {
+                            ns = androidExt.namespace
+                        } catch (ignored) {
+                            ns = null
+                        }
+                        if (ns == null || ns.toString().trim().length() == 0) {
+                            def safeName = proj.name.replaceAll('[^A-Za-z0-9_]','_')
+                            androidExt.namespace = "com.flutter.plugins.${safeName}"
+                        }
+                    }
+                }
+            } catch (ignored) {
+                // best-effort only; let Gradle report issues if this fails
+            }
+        }
+    }
+
+    // Force all Java/Kotlin compilation tasks to target Java 17, matching Kotlin 2.1/AGP 8.9+
+    subprojects {
+        tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { task ->
+            task.kotlinOptions.jvmTarget = '17'
+        }
+        tasks.withType(JavaCompile).configureEach { task ->
+            task.sourceCompatibility = JavaVersion.VERSION_17
+            task.targetCompatibility = JavaVersion.VERSION_17
+        }
+    }
