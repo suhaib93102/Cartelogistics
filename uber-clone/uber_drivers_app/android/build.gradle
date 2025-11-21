@@ -1,0 +1,58 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+subprojects {
+    project.evaluationDependsOn(":app")
+}
+
+// Ensure library modules coming from plugins have a namespace set when missing.
+// This helps avoid AGP errors for packages in the pub cache that don't define
+// `namespace` in their Android build files (common for older plugins).
+gradle.projectsEvaluated {
+    subprojects.each { proj ->
+        try {
+            if (proj.plugins.hasPlugin('com.android.library')) {
+                def androidExt = proj.extensions.findByName('android')
+                if (androidExt != null) {
+                    def ns = null
+                    try {
+                        ns = androidExt.namespace
+                    } catch (ignored) {
+                        ns = null
+                    }
+                    if (ns == null || ns.toString().trim().length() == 0) {
+                        def safeName = proj.name.replaceAll('[^A-Za-z0-9_]','_')
+                        androidExt.namespace = "com.flutter.plugins.${safeName}"
+                    }
+                }
+            }
+        } catch (ignored) {
+            // best-effort only; if this fails, let Gradle report original error
+        }
+    }
+}
+
+// Align JVM target for Kotlin/Java compile tasks across plugin modules so
+// every dependency builds against the same Java 17 toolchain required by
+// latest Flutter/AGP/Kotlin versions.
+subprojects {
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { task ->
+        task.kotlinOptions.jvmTarget = '17'
+    }
+    tasks.withType(JavaCompile).configureEach { task ->
+        task.sourceCompatibility = JavaVersion.VERSION_17
+        task.targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}

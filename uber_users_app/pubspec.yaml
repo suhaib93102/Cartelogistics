@@ -45,6 +45,7 @@ dependencies:
   flutter_geofire:
   googleapis:
   googleapis_auth:
+  flutter_dotenv: ^5.1.0
   restart_app: ^1.2.1
   url_launcher:
   country_picker:

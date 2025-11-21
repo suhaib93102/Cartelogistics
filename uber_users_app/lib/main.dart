@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -14,6 +15,7 @@ import 'package:uber_users_app/pages/home_page.dart';
 late Size mq;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   Stripe.publishableKey = stripePublishedKey;
   await Firebase.initializeApp();
   await Permission.locationWhenInUse.isDenied.then((valueOfPermission) {
