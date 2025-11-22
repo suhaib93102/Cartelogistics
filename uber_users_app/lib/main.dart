@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
@@ -15,8 +16,7 @@ import 'package:uber_users_app/pages/home_page.dart';
 late Size mq;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
-  Stripe.publishableKey = stripePublishedKey;
+  await _initializeConfiguration();
   await Firebase.initializeApp();
   await Permission.locationWhenInUse.isDenied.then((valueOfPermission) {
     if (valueOfPermission) {
@@ -47,6 +47,41 @@ class MyApp extends StatelessWidget {
         home: const AuthCheck(),
       ),
     );
+  }
+}
+
+Future<void> _initializeConfiguration() async {
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (err) {
+    debugPrint("dotenv: failed to load .env file. Falling back to defaults. Error: $err");
+  }
+
+  _applyEnvValue(
+    dotenv.env['STRIPE_SECRET_KEY'],
+    (value) => stripeSecretAPIKey = value,
+  );
+
+  _applyEnvValue(
+    dotenv.env['STRIPE_PUBLISHABLE_KEY'],
+    (value) => stripePublishedKey = value,
+  );
+
+  _applyEnvValue(
+    dotenv.env['GOOGLE_MAPS_API_KEY'],
+    (value) => googleMapKey = value,
+  );
+
+  Stripe.publishableKey = stripePublishedKey;
+  if (stripePublishedKey.isEmpty) {
+    debugPrint('Stripe publishable key is empty. Update .env or global_var.dart to enable payments.');
+  }
+}
+
+void _applyEnvValue(String? envValue, void Function(String) setter) {
+  final trimmedValue = envValue?.trim();
+  if (trimmedValue != null && trimmedValue.isNotEmpty) {
+    setter(trimmedValue);
   }
 }
 
