@@ -1,8 +1,10 @@
+// This file used to define the MainActivity for the old package name.
+// The app package has changed to com.company.users and a new MainActivity
+// exists under that package. Keeping this file as a no-op placeholder so
+// other tooling that expects the path won't fail.
+
 package com.example.uber_users_app
 
-import io.flutter.embedding.android.FlutterActivity
-import io.flutter.embedding.android.FlutterFragmentActivity
-
-class MainActivity: FlutterFragmentActivity(){
-    
+class OldMainActivity {
+	// placeholder
 }

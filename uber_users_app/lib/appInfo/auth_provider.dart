@@ -73,7 +73,23 @@ class AuthenticationProvider extends ChangeNotifier {
         },
         verificationFailed: (FirebaseAuthException e) {
           stopLoading(); // Stop loading if verification failed
+
+          // Surface a friendly, actionable error when billing isn't enabled
+          final message = e.message?.toUpperCase() ?? '';
+          if (message.contains('BILLING_NOT_ENABLED')) {
+            commonMethods.displaySnackBar(
+              'SMS verification failed because Firebase Billing is not enabled.\n'
+              'For local testing add a test phone number in Firebase Console (Auth → Sign-in method → Phone → Add test number) ' 
+              'or enable the Blaze (pay-as-you-go) plan for production SMS delivery.',
+              context,
+            );
+            // Do not rethrow — we already reported the issue to the user
+            return;
+          }
+
+          // Default behavior for other verification failures
           commonMethods.displaySnackBar(e.toString(), context);
+          // Keep original propagation so callers can handle exceptions if needed
           throw Exception(e.toString());
         },
         codeSent: (String verificationId, int? resendToken) {
@@ -146,7 +162,7 @@ class AuthenticationProvider extends ChangeNotifier {
   }
 
 // Method to register a new user
-  void saveUserDataToFirebase({
+  Future<void> saveUserDataToFirebase({
     required BuildContext context,
     required UserModel userModel,
     required VoidCallback onSuccess,

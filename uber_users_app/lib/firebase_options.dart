@@ -58,12 +58,12 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyAMTI-xVId1DTz9DS0-LEJZhF-eAFv352c',
-    appId: '1:311663641676:android:e4cf8001ceacd074b8a0e9',
-    messagingSenderId: '311663641676',
-    projectId: 'everyone-2de50',
-    databaseURL: 'https://everyone-2de50-default-rtdb.firebaseio.com',
-    storageBucket: 'everyone-2de50.appspot.com',
+    apiKey: 'AIzaSyAbMDpO5BdoBunFNy3zUX1PAY4mrPME95k',
+    appId: '1:334649982880:android:26824500bbe7275a9d2ec5',
+    messagingSenderId: '334649982880',
+    projectId: 'cartologistics-99a16',
+    databaseURL: 'https://cartologistics-99a16-default-rtdb.firebaseio.com',
+    storageBucket: 'cartologistics-99a16.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(

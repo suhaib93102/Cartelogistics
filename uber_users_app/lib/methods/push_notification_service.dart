@@ -89,8 +89,9 @@ class PushNotificationService {
         .toString();
     print('pickup address is ${pickUpAddress}');
     final String serverKeyTokenKey = await getAccessToken();
+    final String projectId = dotenv.env['GCP_SERVICE_ACCOUNT_PROJECT_ID'] ?? 'everyone-2de50';
     String endpointFirebaseCloudMessaging =
-        "https://fcm.googleapis.com/v1/projects/everyone-2de50/messages:send";
+      "https://fcm.googleapis.com/v1/projects/$projectId/messages:send";
     final Map<String, dynamic> message = {
       'message': {
         'token': deviceToken,

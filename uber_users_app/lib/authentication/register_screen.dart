@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rounded_loading_button/rounded_loading_button.dart';
 import 'package:uber_users_app/appInfo/auth_provider.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:uber_users_app/models/user_model.dart';
 import 'package:uber_users_app/authentication/user_information_screen.dart';
 import 'package:uber_users_app/methods/common_methods.dart';
 import 'package:uber_users_app/pages/blocked_screen.dart';
@@ -18,16 +20,17 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController phoneController = TextEditingController();
 
+  // Default to India (+91) and restrict validation to Indian mobile format
   Country selectedCountry = Country(
-    phoneCode: '92',
-    countryCode: 'PK',
+    phoneCode: '91',
+    countryCode: 'IN',
     e164Sc: 0,
     geographic: true,
     level: 1,
-    name: 'Pakistan',
-    example: 'Pakistan',
-    displayName: 'Pakistan',
-    displayNameNoCountryCode: 'PK',
+    name: 'India',
+    example: 'India',
+    displayName: 'India',
+    displayNameNoCountryCode: 'IN',
     e164Key: '',
   );
 
@@ -35,6 +38,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void dispose() {
     phoneController.dispose();
     super.dispose();
+  }
+
+  Future<void> _devQuickSignIn(BuildContext context) async {
+    final authProvider = Provider.of<AuthenticationProvider>(context, listen: false);
+    try {
+      // Sign in anonymously for quick dev testing
+      await authProvider.firebaseAuth.signInAnonymously();
+
+      final uid = authProvider.firebaseAuth.currentUser!.uid;
+
+      // Build a small test user record
+      final testUser = UserModel(
+        id: uid,
+        name: 'Dev User',
+        email: 'devuser@example.com',
+        phone: '+${selectedCountry.phoneCode}0000000000',
+        blockStatus: 'no',
+      );
+
+      // Save minimal profile in Realtime Database and navigate to home
+      await authProvider.saveUserDataToFirebase(
+        context: context,
+        userModel: testUser,
+        onSuccess: () async {
+          navigate(isSingedIn: true);
+        },
+      );
+    } catch (e) {
+      commonMethods.displaySnackBar('Dev quick sign-in failed: $e', context);
+    }
   }
 
   CommonMethods commonMethods = CommonMethods();
@@ -78,7 +111,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   decoration: InputDecoration(
                     fillColor: Colors.grey,
                     counterText: '',
-                    hintText: '313 7426256',
+                    hintText: '98765 43210',
                     hintStyle: const TextStyle(
                       color: Colors.grey,
                       fontSize: 18,
@@ -133,6 +166,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const SizedBox(
                   height: 15,
                 ),
+                // Debug quick-login for fast local testing (only visible in debug builds)
+                if (kDebugMode) ...[
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    height: MediaQuery.of(context).size.height * 0.07,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await _devQuickSignIn(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueGrey,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                      ),
+                      child: const Text(
+                        "DEV: Quick sign-in (test only)",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
                 SizedBox(
                   width: MediaQuery.of(context).size.width * 0.9,
                   height: MediaQuery.of(context).size.height * 0.07,
@@ -320,9 +379,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     String phoneNumber = phoneController.text.trim();
 
     // Validate the phone number
-    if (phoneNumber.isEmpty ||
+                  if (phoneNumber.isEmpty ||
         phoneNumber.length != 10 ||
-        !RegExp(r'^[3][0-9]{9}$').hasMatch(phoneNumber)) {
+        !RegExp(r'^[6-9][0-9]{9}$').hasMatch(phoneNumber)) {
       // Show error if the phone number is invalid
       commonMethods.displaySnackBar(
         "Please enter a valid mobile number.",
