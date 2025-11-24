@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <service
+                android:enabled="true"
+                android:exported="false"
+                android:foregroundServiceType="location"
+                android:name=".GeolocatorLocationService"/>
+    </application>
+</manifest>

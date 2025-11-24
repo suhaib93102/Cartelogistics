@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "334649982880",
+    "project_id": "cartologistics-99a16",
+    "storage_bucket": "cartologistics-99a16.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:334649982880:android:26824500bbe7275a9d2ec5",
+        "android_client_info": {
+          "package_name": "com.company.users"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbMDpO5BdoBunFNy3zUX1PAY4mrPME95k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

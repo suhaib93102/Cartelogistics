@@ -1,0 +1,63 @@
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.buildDir = "../build"
+subprojects {
+    project.buildDir = "${rootProject.buildDir}/${project.name}"
+}
+
+subprojects {
+    project.evaluationDependsOn(":app")
+
+    plugins.withId('com.android.library') {
+        try {
+            def androidExt = extensions.findByName('android')
+            if (androidExt != null) {
+                def ns = null
+                try {
+                    ns = androidExt.namespace
+                } catch (ignored) {
+                    ns = null
+                }
+                if (ns == null || ns.toString().trim().isEmpty()) {
+                    def safeName = name.replaceAll('[^A-Za-z0-9_]', '_')
+                    androidExt.namespace = "com.flutter.plugins.${safeName}"
+                }
+
+                androidExt.sourceSets?.all { sourceSet ->
+                    def manifestFile = sourceSet.manifest?.srcFile
+                    if (manifestFile != null && manifestFile.exists()) {
+                        def manifestText = manifestFile.getText('UTF-8')
+                        if (manifestText.contains('package="')) {
+                            def updatedText = manifestText.replaceFirst(/\s+package="[^"]+"/, '')
+                            if (manifestText != updatedText) {
+                                manifestFile.write(updatedText, 'UTF-8')
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (ignored) {
+            // best effort only; let Gradle surface any real errors
+        }
+    }
+}
+
+// Align Java/Kotlin compile targets with Kotlin 2.1 + AGP 8.9 expectations
+subprojects {
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach { task ->
+        task.kotlinOptions.jvmTarget = '17'
+    }
+    tasks.withType(JavaCompile).configureEach { task ->
+        task.sourceCompatibility = JavaVersion.VERSION_17
+        task.targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+tasks.register("clean", Delete) {
+    delete rootProject.buildDir
+}
